@@ -1,0 +1,47 @@
+<% content_for :styles do %>
+  <link rel="stylesheet" href="stylesheets/home.css">
+<% end %>
+
+<section>
+  <h2>Books</h2>
+  <p>Showing <%= @start %>-<%= @finish %> of <%= @total_num_books %></p>
+  <p>Sorted alphabetically</p>
+
+  <article>
+    <% @books.each do |book|%>
+      <a href="/view/<%= book['id'] %>">
+        <figure>
+          <img src="<%= book['cover_page_link']%>">
+          <figcaption>
+            <%= book['title'] %> --- <%= book['author'] %>
+          </figcaption>
+        </figure>
+      </a>
+    <% end %>
+  </article>
+</section>
+
+<nav class="pagination">
+  <ul>
+
+    <li>
+    <% if reached_lower_limit?(@page-1) %>
+      <p class="disabled_link">&lt; Prev</p>
+    <% else %>
+      <a href="/books?page=<%= @page-1 %>">&lt; Prev</a>
+    <% end %>
+    </li>
+
+    <% nav_pages_array(@page).each do |p| %>
+      <li><a href="/books?page=<%= p %>"><%= p %></a></li>
+    <% end %>
+
+    <li>
+      <% if reached_upper_limit?(@page+1) %>
+        <p class="disabled_link">Next &gt;</p>
+      <% else %>
+        <a href="/books?page=<%= @page+1 %>">Next &gt;</a>
+      <% end %>
+    </li>
+  </ul>
+</nav>

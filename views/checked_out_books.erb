@@ -1,0 +1,17 @@
+<h2>All items checked out</h2>
+
+<% if @checked_out_books.ntuples == 0 %>
+  <p>Looks like nobody is reading... There are no books checked out at the moment. </p>
+<% else %>
+  <ul>
+    <% @checked_out_books.each do |book| %>
+      <li>
+        <%= book["title"] %>--- <%= book["author"] %> (Reserved by <%= book["username"] %>)
+        
+        <form action="/admin/return/book?id=<%=book["id"]%>&user_id=<%= book["user_id"] %>&username=<%= book["username"] %>" method="post">
+          <input type="submit" value="Return book">
+        </form>
+      </li>
+    <% end %>
+  <ul>
+<% end %>

@@ -1,0 +1,21 @@
+<h2>All reserved items</h2>
+
+<% if @reserved_books.ntuples == 0 %>
+  <p>Whoo! There are no reserved items to check out.
+<% else %>
+  <ul>
+    <% @reserved_books.each do |reservation| %>
+      <li>
+        <%= reservation["title"] %>--- <%= reservation["author"] %> (Reserved by <%= reservation["username"] %>)
+        
+        <form action="/admin/checkout/book?id=<%=reservation["id"]%>&user_id=<%= reservation["user_id"] %>&username=<%= reservation["username"] %>" method="post">
+          <input type="submit" value="Check out book">
+        </form>
+
+        <form action="/admin/cancel_reservation/book?id=<%= reservation["id"] %>&user_id=<%= reservation["user_id"] %>&username=<%= reservation["username"] %>" method="post">
+          <input type="submit" value="Cancel this reservation">
+        </form>
+      </li>
+    <% end %>
+  <ul>
+<% end %>

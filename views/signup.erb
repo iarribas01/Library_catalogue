@@ -1,0 +1,14 @@
+
+<h2>Sign up</h2>
+<form action="/signup" method="post">
+  <label for="full_name">Enter your full name:</label>
+  <input type="text" name="full_name" id="full_name" value='<%= @full_name %>'>
+
+  <label for="username">Enter a username:</label>
+  <input type="text" name="username" id="username" value=<%= @username %>>
+
+  <label for="password">Enter a password:</label>
+  <input type="password" name="password" id="password" value=<%= @password %>>
+
+  <input type="submit" value="Sign up">
+</form>

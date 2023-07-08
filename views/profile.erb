@@ -1,0 +1,44 @@
+<h2>Your Profile</h2>
+
+<article>
+  <section>
+    <h3><%= @user["full_name"] %></h3>
+    <h4><%= @user["username"] %></h4>
+    <p>Member since <%= @user["account_created_on"]%></p>
+  </section>
+
+  <section>
+    <h3>Books currently reserved: </h3>
+    <% if @reserved_books.empty? %>
+      <p> You have no books placed on reservation. </p>
+    <% else %>
+      <ul>
+        <% @reserved_books.each do |book| %>
+          <li><%= book["title"] %> --- <%= book["author"] %></li>
+        <% end %>
+      </ul>
+    <% end%>
+  </section>
+
+  <section>
+    </h3>Books currently checked out: </h3>
+    <% if @checked_out_books.empty? %>
+      <p> You have no books checked out. </p>
+    <% else %>
+      <ul>
+        <% @checked_out_books.each do |book| %>
+          <li><%= book["title"] %> --- <%= book["author"] %></li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+
+  <% if admin? %>
+    <form action="/admin/delete/user/<%= @user["id"] %>" method="post">
+      <input type="submit" value="Delete user from system">
+    </form>
+  <% end %>
+</article>
+
+
+

@@ -1,0 +1,41 @@
+nav.pagination  {
+  padding: 2% 30%;
+  width: 100%;
+  box-sizing: border-box;
+  background-color:antiquewhite;
+}
+
+img {
+  background-color: lightgrey;
+  width: 200px;
+  height: 300px;
+  box-sizing: border-box;
+}
+
+figure {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 10px;
+  width: 200px;
+  box-sizing: border-box;
+}
+
+.pagination li {
+  display: inline-block;
+}
+
+.pagination ul {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
+
+.disabled_link {
+  color: grey;
+  font-weight: 300;
+}

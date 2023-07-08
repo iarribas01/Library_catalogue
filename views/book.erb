@@ -1,0 +1,36 @@
+<% content_for :styles do %>
+  <link rel="stylesheet" href="/stylesheets/book.css">
+<% end %>
+
+<section>
+  <img href="<%= @book["cover_page_link"]%>">
+
+  <article>
+    <h2><%= @book["title"] %></h2>
+    <h3><%= @book["author"] %></h3>
+    <h3><%= @book["published"] %></h3>
+    <h3><%= @book["genre"] %></h3>
+
+    <form action="/reserve?id=<%= @book["id"] %>" method="post">
+      <% if @book["status"] == 'available' %>
+        <h3> Book is currently available </h3>
+        <% if !admin? %>
+          <input type="submit" value="Reserve">
+        <% end %>
+      <% else %>
+        <h3> Book is currently unavailable </h3>
+        <% if !admin? %>
+          <input type="submit" value="Reserve" disabled>
+        <% end %>
+      <% end %>
+    </form>
+
+    <% if admin? %>
+      <form action="/admin/delete/book?id=<%= @book["id"] %>" method="post">
+        <input type="submit" value="Delete from system">
+      </form>
+    <% end %>
+
+  </article>
+</section>
+

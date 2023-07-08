@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <title>Library</title>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/normalize.css">
+    <link rel="stylesheet" href="/stylesheets/layout.css">
+    <%= yield_content :styles %>
+  </head>
+  <body>
+  <header>
+    <p class="error message"><%= session.delete(:error) %></p>
+    <p class="success message"><%= session.delete(:success) %></p>
+    <p class="hint message"><%= session.delete(:hint) %></p>
+    <h1>Library Catalogue</h1>
+    <form action="/search" method="get" class="search">
+      <label for="genre_search_box">
+      <input type="text" placeholder="Search by genre" name="genre" id="genre_search_box">
+      <input type="submit" value="go!">
+    </form>
+  </header>
+  <aside>
+    <nav class="menu">
+      <ul>
+        <li><a href="/">Home</a></li>
+        
+        <% if logged_in? %>
+          <li><a href="/logout">Logout</a></li>
+          <% if admin? %>
+            <li><a href="/admin/">Admin</a></li>
+          <% else %>
+            <li><a href="/profile/<%= session[:user][:username] %>">Profile</a></li>
+          <% end %>
+        <% else %>
+          <li><a href="/signup">Sign up</a></li>
+          <li><a href="/login">Login</a></li>
+        <% end %>
+      </ul>
+    </nav>
+    <% if session[:user] %>
+      <p>Welcome, <%= session[:user][:full_name] %>.</p>
+      <p>(Logged in as <%= session[:user][:username] %>)</p>
+    <% end %>
+  </aside>
+
+  <main>
+    <%= yield %>
+  </main>
+
+  </body>
+</html>

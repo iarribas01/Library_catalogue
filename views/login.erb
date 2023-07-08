@@ -1,0 +1,14 @@
+
+<h2>Login</h2>
+<form action="/login" method="post">
+  <label for="username">Enter your username:</label>
+  <input type="text" name="username" id="username" value=<%= @username %>>
+
+  <label for="password">Enter your password:</label>
+  <input type="password" name="password" id="password" value=<%= @password %>>
+
+  <input type="submit" value="Login">
+</form>
+
+<p>Don't have an account? Sign up with us today!</p>
+<a href="/signup">Sign up</a>

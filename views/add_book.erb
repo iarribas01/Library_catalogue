@@ -1,0 +1,40 @@
+<% content_for :styles do %>
+  <link rel="stylesheet" href="stylesheets/add_book.css">
+<% end %>
+
+
+<h2>Add a book to the library: </h2>
+
+<form action="/add_book" method="post">
+  <fieldset>
+    <label for="title">Title: </label>
+    <input type="text" name="title" id="title">
+  </fieldset>
+
+  <fieldset>
+    <label for="author">Author: </label>
+    <input type="text" name="author" id="author">
+  </fieldset>
+
+  <fieldset>
+    <label for="published">Date published: </label>
+    <input type="date" name="published" id="published">
+  </fieldset>
+
+  <fieldset>
+    <label for="uknown_date">There is no date specified (or date is incomplete).</label>
+    <input type="radio" id="uknown_date" name="unknown_date" value="uknown_date">
+  </fieldset>
+
+  <fieldset>
+    <label for="image_link">Link to cover page image: </label>
+    <input type="url" name="image_link" id="image_link">
+  </fieldset>
+
+  <fieldset>
+    <label for="description">Synopsis of book: </label>
+    <textarea name="description" id="description"></textarea>
+  </fieldset>
+
+  <input type="submit" value="Looks good!">
+</form>
