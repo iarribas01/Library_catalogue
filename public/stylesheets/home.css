@@ -39,3 +39,8 @@ figure {
   color: grey;
   font-weight: 300;
 }
+
+a.book-link {
+  text-decoration: none;
+  color: grey;
+}

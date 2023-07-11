@@ -4,9 +4,8 @@ require 'sinatra/reloader'
 require 'sinatra/content_for'
 require 'securerandom'
 
-require_relative './database_persistence'
-
-BOOKS_PER_PAGE = 5
+require_relative './lib/database_persistence'
+require_relative './lib/pagination.rb'
 
 configure do
   enable :sessions
@@ -25,23 +24,6 @@ end
 
 # =============== METHODS =============== 
 helpers do
-  # given the current page number the user is on
-  # returns array of page numbers the user
-  # can nagivate to -- to be used in pagination
-  def nav_pages_array(p)
-    if max_pages == 1
-      [ 1 ]
-    elsif max_pages == 2
-      [ 1, 2 ]
-    elsif reached_lower_limit?( p-1 )
-      [ p, p+1, p+2 ]
-    elsif reached_upper_limit?( p )
-      [ p-2, p-1, p ]
-    else
-      [ p-1, p, p+1 ]
-    end
-  end
-  
   def logged_in?
     !!session[:user]
   end
@@ -51,6 +33,7 @@ helpers do
   end
 end
 
+# ensure every page can only be accessed if user is logged on
 def authenticate!
   if !logged_in? && (request.path_info != "/login" && request.path_info != "/signup")
     session[:error] = "You must be logged in first to view that page."
@@ -58,9 +41,18 @@ def authenticate!
   end
 end
 
+# prevents non-admins from accessing admin pages
 def authenticate_admin!
   unless admin?
     session[:error] = "You do not have access to view that page."
+    redirect "/"
+  end
+end
+
+# prevent unauthorized users from accessing specific pages
+def authenticate_for_private_access!
+  if !admin? && session[:user][:username] != params[:username]
+    session[:error] = "You do not have access to that page."
     redirect "/"
   end
 end
@@ -72,24 +64,11 @@ def validate_book!(id)
   end
 end
 
-
 def validate_user!(username, redirect_path = "/")
   unless @storage.user_exists?(username)
     session[:error] = "We cannot find anyone with the username '#{params[:username]}'."
     redirect redirect_path
   end
-end
-
-def max_pages
-  (@storage.total_num_books.to_f / BOOKS_PER_PAGE ).ceil
-end
-
-def reached_lower_limit?(page)
-  page <= 0
-end
-
-def reached_upper_limit?(page)
-  page > max_pages
 end
 
 # =============== ROUTES =============== 
@@ -101,19 +80,6 @@ end
 
 get "/" do
   redirect "/books?page=1&genre=all"
-end
-
-get "/search" do
-  genres = params["genre"].split(',').map(&:strip)
-  if genres.length == 0
-    session[:hint] = "You must enter a genre."
-    redirect "/"
-  else
-    books_grouped_for_genre(BOOKS_PER_PAGE, @start - 1, genres)
-
-
-
-  end
 end
 
 get "/login" do
@@ -130,11 +96,10 @@ get "/logout" do
   redirect "/login"
 end
 
-
-# ======== error for nonexistent username
-# ========= must be your own profile or admin
 get "/profile/:username" do
-  
+  validate_user!(params[:username])
+  authenticate_for_private_access!
+
   @user = @storage.get_user_info(params[:username])
   @reserved_books = @storage.get_reserved_books(@user["id"])
   @checked_out_books = @storage.get_checked_out_books(@user["id"])
@@ -142,33 +107,76 @@ get "/profile/:username" do
   erb :profile
 end
 
+get "/profile/:username/edit" do
+  @old_username = params[:username].downcase
+  validate_user!(@old_username)
+  authenticate_for_private_access!
+  
+  user = @storage.get_user_info(@old_username)
+  @id = user["id"]
+  @full_name = user["full_name"]
+  
+  erb :edit_profile
+end
+
+post "/profile/:username/edit" do 
+  validate_user!(params[:username])
+
+  @id = params[:id]
+  @full_name = params["full_name"]
+  @old_username = params[:username]
+  @new_username = params["new_username"].downcase
+
+  if @full_name.empty?
+    session[:error] = "You must enter your name."
+    erb :edit_profile
+  elsif @new_username.empty?
+    session[:error] = "You must enter a username."
+    erb :edit_profile
+  elsif @new_username.include?(' ')
+    session[:error] = "Your username cannot contain spaces."
+    erb :edit_profile
+  elsif @old_username != @new_username && @storage.user_exists?(@new_username) 
+    session[:error] = "That username is already taken. Please choose another one."
+    erb :edit_profile
+  else
+    if !admin? 
+      session[:user][:username] = @new_username
+      session[:user][:full_name] = @full_name
+    end
+    @storage.edit_user(@id, @new_username, @full_name)
+    session[:success] = "Profile has been updated."
+    redirect "/"
+  end
+
+end
+
 get "/books" do
-  # default page to 1 if not specified
-  if params[:page].nil?
-    @page = 1 if params[:page].nil?
-  # check if the page provided is a number 
-  elsif params[:page].to_i.to_s != params[:page] 
+  books_per_page = 5
+  current_page = params[:page]
+
+  if current_page.nil?
+    current_page = 1
+  elsif current_page.to_i.to_s != current_page # check if the page provided is a number  
     session[:error] = "Whoops! Something went wrong. You cannot view that page. You must use a number for the page."
     redirect "/books"
   else
-    @page = params[:page].to_i
+    current_page = current_page.to_i
   end
-  
-  if reached_lower_limit?(@page)
-    session[:error] = "Whoops! Something went wrong. You cannot view that page. You must view a page number greater than 0."
-    redirect "/books"
-  elsif reached_upper_limit?(@page)
-    session[:error] = "Whoops! Something went wrong. You cannot view that page. You must view a page number less than #{max_pages}."
-    redirect "/books"
-  else
-    @finish = @page * BOOKS_PER_PAGE
-    @start = @finish - BOOKS_PER_PAGE + 1
-    @total_num_books = @storage.total_num_books
-    @finish = @finish > @total_num_books ? @total_num_books : @finish
-    @books = @storage.books_grouped(BOOKS_PER_PAGE, @start - 1)
 
-    erb :home
+  @pagination = Pagination.new(books_per_page, @storage.total_num_books, current_page)
+
+  if @pagination.reached_lower_limit?
+    session[:error] = "Whoops! Something went wrong. You must view a page number greater than 0."
+    redirect "/books"
+  elsif @pagination.reached_upper_limit?
+    session[:error] = "Whoops! Something went wrong. We don't have enough books to be able to display that many pages! You must view a page number less than #{@pagination.max_pages}."
+    redirect "/books"
   end
+
+  @books = @storage.books_grouped(@pagination.items_per_page, @pagination.offset)
+
+  erb :home
 end
 
 get "/view/:id" do
@@ -237,7 +245,7 @@ post "/signup" do
 end
 
 post "/reserve" do
-  id = params[:id].to_i
+  id = params[:id]
   validate_book!(id)
 
   book = @storage.book(id)
@@ -246,7 +254,17 @@ post "/reserve" do
   redirect "/"
 end
 
-# ============================= ADMIN PRIVILEDGES
+post "/cancel_reservation/book" do
+  book_id = params[:id]
+  validate_book!(book_id)
+
+  @storage.cancel_reservation(book_id)
+  session[:success] = "You've cancelled a reservation for the book '#{params[:title]}'"
+  redirect "/"
+end
+
+
+# ============================= ADMIN PRIVILEGES
 
 get "/admin/" do
   erb :admin
@@ -267,8 +285,8 @@ get "/admin/checked_out_books" do
   erb :checked_out_books
 end
 
-get "/admin/add_book" do
-  erb :add_book
+get "/admin/add/book" do
+  erb :edit_book
 end
 
 post "/admin/delete/book" do
@@ -279,6 +297,34 @@ post "/admin/delete/book" do
   @storage.delete_book(id)
   session[:success] = "You have successfully removed '#{@book["title"]}' from the system."
   redirect "/"
+end
+
+post "/admin/add/book" do
+  @title = params["title"]
+  @author = params["author"]
+  @published = params["published"]
+  @cover_page_link = params["cover_page_link"]
+  @genre = params["genre"]
+  @description = params["description"]
+
+  if @title.empty? || @title.length > 200
+    session[:error] = "You must input a title that is between 1-200 characters."
+    erb :edit_book
+  elsif @author.empty? || @author.length > 100
+    session[:error] = "You must input an author that is between 1-100 characters."
+    erb :edit_book
+  elsif @genre.empty? || @genre.length > 100
+    session[:error] = "You must input one or multiple genres that is between 1-100 characters."
+    erb :edit_book
+  else
+    @published = nil if @published.empty?
+    @cover_page_link = '#' if @description.empty?
+    @description = nil if @description.empty?
+
+    @storage.add_book(@title, @author, @published, @cover_page_link, @genre, @description)
+    session[:success] = "You have successfully added the book '#{@title}' by #{@author} to the library."
+    redirect "/admin/add/book"
+  end
 end
 
 post "/admin/delete/user/:username" do
@@ -302,13 +348,53 @@ post "/admin/checkout/book" do
   redirect "/admin/reserved_books"
 end
 
-post "/admin/cancel_reservation/book" do
+get "/admin/edit/book/:id" do
+  id = params[:id].to_i
+  validate_book!(id)
 
+  @book = @storage.book(id)
+  @id = @book["id"]
+  @title = @book["title"]
+  @author = @book["author"]
+  @published = @book["published"]
+  @cover_page_link = @book["cover_page_link"]
+  @genre = @book["genre"]
+  @description = @book["description"]
 
+  erb :edit_book
+end
+
+post "/admin/edit/book" do
+  id = params[:id].to_i
+  validate_book!(id)
+
+  @title = params["title"]
+  @author = params["author"]
+  @published = params["published"]
+  @cover_page_link = params["cover_page_link"]
+  @genre = params["genre"]
+  @description = params["description"]
+
+  if @title.empty? || @title.length > 200
+    session[:error] = "You must input a title that is between 1-200 characters."
+    erb :edit_book
+  elsif @author.empty? || @author.length > 100
+    session[:error] = "You must input an author that is between 1-100 characters."
+    erb :edit_book
+  elsif @genre.empty? || @genre.length > 100
+    session[:error] = "You must input one or multiple genres that is between 1-100 characters."
+    erb :edit_book
+  else
+    @published = nil if @published.empty?
+    @cover_page_link = nil if @cover_page_link.empty?
+    @storage.edit_book(id, @title, @author, @published, @cover_page_link, @genre, @description)
+    session[:success] = "You have successfully edited the book '#{@title}' by #{@author}."
+    redirect "/"
+  end
 end
 
 post "/admin/return/book" do
-  book_id = params[:id]
+  book_id = params[:id].to_i
   validate_book!(book_id)
   
   user_id = params[:user_id]

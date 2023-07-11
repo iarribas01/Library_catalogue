@@ -23,7 +23,7 @@ CREATE TABLE books (
   description text,
   status status NOT NULL DEFAULT 'available',
   cover_page_link text NOT NULL DEFAULT '#',
-  user_id integer REFERENCES users(id) ON DELETE SET NULL
+  user_id integer REFERENCES users(id) ON DELETE SET NULL DEFAULT NULL
 );
 
 ALTER TABLE books 

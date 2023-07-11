@@ -20,11 +20,20 @@ main {
 }
 
 a {
+  font-weight: normal;
+  color:darkslategray;
+  text-decoration: underline;
+  display: inline-block;
+}
+
+.menu a {
   display: inline-block;
   text-decoration: none;
   font-weight: bold;
   color: inherit;
 }
+
+
 
 .message {
   font-size: 20px;

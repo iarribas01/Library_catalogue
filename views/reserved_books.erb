@@ -12,7 +12,7 @@
           <input type="submit" value="Check out book">
         </form>
 
-        <form action="/admin/cancel_reservation/book?id=<%= reservation["id"] %>&user_id=<%= reservation["user_id"] %>&username=<%= reservation["username"] %>" method="post">
+        <form action="/cancel_reservation/book?id=<%= reservation["id"] %>&title=<%= reservation["title"] %>" method="post">
           <input type="submit" value="Cancel this reservation">
         </form>
       </li>

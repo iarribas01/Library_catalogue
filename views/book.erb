@@ -3,13 +3,21 @@
 <% end %>
 
 <section>
-  <img href="<%= @book["cover_page_link"]%>">
+  <img src="<%= @book["cover_page_link"]%>">
 
   <article>
     <h2><%= @book["title"] %></h2>
     <h3><%= @book["author"] %></h3>
     <h3><%= @book["published"] %></h3>
     <h3><%= @book["genre"] %></h3>
+    <p>
+      <% if @book["description"].nil? %>
+        (No description to display here.)
+      <% else %>
+        <%= @book["description"] %>
+      <% end %>    
+    
+    </p>
 
     <form action="/reserve?id=<%= @book["id"] %>" method="post">
       <% if @book["status"] == 'available' %>
@@ -28,6 +36,10 @@
     <% if admin? %>
       <form action="/admin/delete/book?id=<%= @book["id"] %>" method="post">
         <input type="submit" value="Delete from system">
+      </form>
+
+      <form action="/admin/edit/book/<%= @book["id"] %>" method="get">
+        <input type="submit" value="Edit">
       </form>
     <% end %>
 

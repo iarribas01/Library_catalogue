@@ -14,7 +14,15 @@
     <% else %>
       <ul>
         <% @reserved_books.each do |book| %>
-          <li><%= book["title"] %> --- <%= book["author"] %></li>
+          <li>
+            <a href="/view/<%= book["id"] %>"><%= book["title"] %> --- <%= book["author"] %></a>
+
+            <% if !admin? %>
+              <form action="/cancel_reservation/book?id=<%= book["id"] %>&title=<%= book["title"] %>" method="post">
+                <input type="submit" value="cancel reservation">
+              </form>
+            <% end %>
+          </li>
         <% end %>
       </ul>
     <% end%>
@@ -32,10 +40,18 @@
       </ul>
     <% end %>
   </section>
+  
+  <form action="/profile/<%= @user["username"] %>/edit" method="get">
+    <input type="submit" value="Edit profile">
+  </form>
 
   <% if admin? %>
     <form action="/admin/delete/user/<%= @user["id"] %>" method="post">
       <input type="submit" value="Delete user from system">
+    </form>
+  <% else %>
+    <form action="/logout" method="get">
+      <input type="submit" value="Log out">
     </form>
   <% end %>
 </article>

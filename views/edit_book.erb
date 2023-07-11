@@ -1,0 +1,46 @@
+<% content_for :styles do %>
+  <link rel="stylesheet" href="stylesheets/add_book.css">
+<% end %>
+
+<% if request.path_info == "/admin/add/book" %>
+  <h2>Add a book to the library: </h2>
+  <form action="/admin/add/book" method="post">
+<% else %>
+  <h2>Edit book: </h2>
+  <form action="/admin/edit/book?id=<%= @id %>" method="post">
+<% end %>
+
+
+  <fieldset>
+    <label for="title">Title: </label>
+    <input type="text" name="title" id="title" placeholder="enter your title here" value="<%= @title %>">
+  </fieldset>
+
+  <fieldset>
+    <label for="author">Author: </label>
+    <input type="text" name="author" id="author" placeholder="enter the author here" value="<%= @author %>">
+  </fieldset>
+
+  <fieldset>
+    <label for="published">Date published: </label>
+    <input type="date" name="published" id="published" value=<%= @published %>>
+  </fieldset>
+
+  <fieldset>
+    <label for="cover_page_link">Link to cover page image: </label>
+    <input type="url" name="cover_page_link" id="cover_page_link" placeholder="/absolute/path/to/cover/page/image.png" value="<%= @cover_page_link %>">
+  </fieldset>
+
+
+  <fieldset>
+    <label for="genre">Genre(s): </label>
+    <input type="text" name="genre" id="genre" placeholder="Fiction, Fantasy, Memoir..." value="<%= @genre %>">
+  </fieldset>
+
+  <fieldset>
+    <label for="description">Synopsis of book: </label>
+    <textarea name="description" id="description" placeholder="Enter description of book here..."><%= @description %></textarea>
+  </fieldset>
+
+  <input type="submit" value="Looks good!">
+</form>

@@ -4,12 +4,12 @@
 
 <section>
   <h2>Books</h2>
-  <p>Showing <%= @start %>-<%= @finish %> of <%= @total_num_books %></p>
-  <p>Sorted alphabetically</p>
+  <p>Showing <%= @pagination.range %> of <%= @pagination.total_items %></p>
+  <p>Sorted alphabetically by title</p>
 
   <article>
     <% @books.each do |book|%>
-      <a href="/view/<%= book['id'] %>">
+      <a class="book-link" href="/view/<%= book['id'] %>">
         <figure>
           <img src="<%= book['cover_page_link']%>">
           <figcaption>
@@ -23,25 +23,12 @@
 
 <nav class="pagination">
   <ul>
-
-    <li>
-    <% if reached_lower_limit?(@page-1) %>
-      <p class="disabled_link">&lt; Prev</p>
-    <% else %>
-      <a href="/books?page=<%= @page-1 %>">&lt; Prev</a>
-    <% end %>
-    </li>
-
-    <% nav_pages_array(@page).each do |p| %>
-      <li><a href="/books?page=<%= p %>"><%= p %></a></li>
+    <li><%= @pagination.prev %></li>
+    
+    <% @pagination.nav_pages_array.each do |link| %>
+      <li><%= link %></li>
     <% end %>
 
-    <li>
-      <% if reached_upper_limit?(@page+1) %>
-        <p class="disabled_link">Next &gt;</p>
-      <% else %>
-        <a href="/books?page=<%= @page+1 %>">Next &gt;</a>
-      <% end %>
-    </li>
+    <li><%= @pagination.next %></li>
   </ul>
 </nav>
