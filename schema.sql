@@ -1,3 +1,7 @@
+CREATE USER admin;
+GRANT ALL PRIVILEGES ON DATABASE library to admin;
+SET role admin;
+
 CREATE TYPE status AS ENUM('available', 'reserved', 'unavailable');
 
 CREATE TABLE users (

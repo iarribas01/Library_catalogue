@@ -1,6 +1,6 @@
 require 'sinatra'
-require 'sinatra/contrib'
-require 'sinatra/reloader'
+require 'rack'
+# use Rack::Logger
 require 'sinatra/content_for'
 require 'securerandom'
 
@@ -10,11 +10,12 @@ require_relative './lib/pagination.rb'
 configure do
   enable :sessions
   set :session_secret, SecureRandom.hex(64)
-  set :environment, :development
+  set :environment, :production
 end
 
 before do
   @storage = DatabasePersistence.new(logger)
+  puts(@storage.whoami)
   authenticate!
 end
 
@@ -24,6 +25,10 @@ end
 
 # =============== METHODS =============== 
 helpers do
+  def logger
+    request.logger
+  end
+
   def logged_in?
     !!session[:user]
   end

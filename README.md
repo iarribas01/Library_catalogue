@@ -58,7 +58,7 @@ Note the roles
 
   1. Run the following command in your terminal in order to start the application
   ```
-    ruby library_catalogue.rb
+    bundle exec ruby library_catalogue.rb
   ```
 
   2. Connect to `localhost:4567` through your browser

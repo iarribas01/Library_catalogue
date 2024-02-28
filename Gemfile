@@ -1,14 +1,12 @@
 source "https://rubygems.org"
 
-ruby '3.1.3'
+ruby '3.3.0'
 
-gem "sinatra", "~>1.4.7"
+gem "sinatra"
 gem "sinatra-contrib"
-gem "erubis"
 gem "pg"
-gem "puma"
+gem "webrick"
 gem "rackup"
 gem "rubocop", require: false
-gem "rack-test"
 gem "minitest"
 gem "bcrypt"
