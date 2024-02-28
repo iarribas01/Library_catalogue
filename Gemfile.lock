@@ -4,19 +4,15 @@ GEM
     ast (2.4.2)
     backports (3.24.1)
     bcrypt (3.1.19)
-    erubis (2.7.0)
     json (2.6.3)
     language_server-protocol (3.17.0.3)
     minitest (5.18.1)
     multi_json (1.15.0)
-    nio4r (2.5.9)
     parallel (1.23.0)
     parser (3.2.2.3)
       ast (~> 2.4.1)
       racc
     pg (1.5.3)
-    puma (6.3.0)
-      nio4r (~> 2.0)
     racc (1.7.1)
     rack (1.6.13)
     rack-protection (1.5.5)
@@ -63,18 +59,16 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt
-  erubis
   minitest
   pg
-  puma
-  rack-test
   rackup
   rubocop
-  sinatra (~> 1.4.7)
+  sinatra
   sinatra-contrib
+  webrick
 
 RUBY VERSION
-   ruby 3.1.3p185
+   ruby 3.3.0p0
 
 BUNDLED WITH
    2.3.26

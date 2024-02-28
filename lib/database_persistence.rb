@@ -1,6 +1,6 @@
 require 'bcrypt'
 require 'pg'
-
+ENV['APP_ENV'] = "production"
 class DatabasePersistence
   def initialize(logger)
     @logger = logger
@@ -8,9 +8,16 @@ class DatabasePersistence
       @db = PG.connect(dbname: "test")
     elsif (ENV['APP_ENV'] == "production")
       @db = PG.connect(dbname: "library")
-    else
+    elsif (ENV['APP_ENV'] === "development")
       @db = PG.connect(dbname: "development")
+    else
+      puts("Invalid app environment: #{ENV['APP_ENV']}")
     end
+  end
+
+  def whoami
+    sql = "SELECT current_user"
+    query(sql).first
   end
 
   def query(statement, *params)

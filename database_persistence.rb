@@ -8,8 +8,10 @@ class DatabasePersistence
       @db = PG.connect(dbname: "test")
     elsif (ENV['APP_ENV'] == "production")
       @db = PG.connect(dbname: "library")
-    else
+    elsif (ENV['APP_ENV'] === "development")
       @db = PG.connect(dbname: "development")
+    else
+      throw new Error("Invalid app environment: #{ENV['APP_ENV']}")
     end
   end
 
