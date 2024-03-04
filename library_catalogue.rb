@@ -15,6 +15,7 @@ end
 
 before do
   @storage = DatabasePersistence.new(logger)
+  @storage.connect_db_user
   puts(@storage.whoami)
   authenticate!
 end
@@ -217,6 +218,9 @@ post "/login" do
         account_created_on: user["account_created_on"]
       }
       session[:success] = "You are now logged in as #{@username}."
+
+      admin? ? @storage.connect_db_admin : @storage.connect_db_user
+
       redirect "/"
     end
   end
