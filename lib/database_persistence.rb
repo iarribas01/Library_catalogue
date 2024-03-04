@@ -7,12 +7,24 @@ class DatabasePersistence
     if (ENV['APP_ENV'] == "test")
       @db = PG.connect(dbname: "test")
     elsif (ENV['APP_ENV'] == "production")
-      @db = PG.connect(dbname: "library")
+      @db = PG.connect(host: "localhost", user: "admin", password: "password123", dbname: "library")
     elsif (ENV['APP_ENV'] === "development")
       @db = PG.connect(dbname: "development")
     else
       puts("Invalid app environment: #{ENV['APP_ENV']}")
     end
+  end
+
+  def connect_db_admin
+    puts("connected as #{whoami}")
+    sql = "SET ROLE admin"
+    query(sql)
+  end
+
+  def connect_db_user
+    puts("connected as #{whoami}")
+    sql = "SET ROLE admin"
+    query(sql)
   end
 
   def whoami
